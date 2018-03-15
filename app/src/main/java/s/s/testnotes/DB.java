@@ -12,6 +12,17 @@ import android.util.Log;
  */
 
 public class DB {
+
+    private static DB sInstance = null;
+    private Context mCtx;
+
+    private DB(Context ctx) { mCtx = ctx; }
+
+    public static synchronized DB getInstance(Context ctx) {
+        if (sInstance == null)
+            sInstance = new DB(ctx);
+        return sInstance;
+    }
     private static final String DB_NAME = "mydb";
     private static final int DB_VERSION = 1;
     private static final String DB_TABLE = "mytab";
@@ -22,14 +33,10 @@ public class DB {
     private static final String DB_CREATE = "create table " + DB_TABLE + "(" + COLUMN_ID +" integer primary key autoincrement, " +
             COLUMN_TXT + " text);";
 
-    private Context mCtx;
+
 
     private  DBHelper mDBHelper;
     private SQLiteDatabase mDB;
-
-    public DB(Context ctx) {
-        mCtx = ctx;
-    }
 
     public void open() {
         mDBHelper = new DBHelper(mCtx, DB_NAME, null, DB_VERSION);
@@ -61,8 +68,7 @@ public class DB {
                 } while (c.moveToNext());
             }
             c.close();
-        } else
-            Log.d("myLogs", "Cursor is null");
+        }
         return text;
     }
 

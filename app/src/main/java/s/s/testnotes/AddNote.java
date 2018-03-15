@@ -1,14 +1,14 @@
 package s.s.testnotes;
 
-import android.database.Cursor;
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import static s.s.testnotes.MainActivity.ctx;
+import static s.s.testnotes.Keys.TEXT;
 
 public class AddNote extends AppCompatActivity implements View.OnClickListener{
 
@@ -21,17 +21,16 @@ public class AddNote extends AppCompatActivity implements View.OnClickListener{
 
         btnAdd = (Button) findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(this);
+
     }
 
     @Override
     public void onClick(View v) {
         EditText etNote = (EditText) findViewById(R.id.etEdit);
-        MainActivity.db.addRec(etNote.getText().toString());
-        Toast toast = Toast.makeText(getApplicationContext(),
-                "Заметка добавлена", Toast.LENGTH_SHORT);
-        toast.show();
-        etNote.setText("");
-        getLoaderManager().restartLoader(0, null, (android.app.LoaderManager.LoaderCallbacks<Cursor>) ctx);
+        Intent data = new Intent();
+        data.putExtra(TEXT, etNote.getText().toString());
+        setResult(Activity.RESULT_OK, data);
         finish();
+
     }
 }
