@@ -12,9 +12,21 @@
     android:text=""
     android:textSize="20sp"
     android:id="@+id/tvTextEachNote"/>
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnDel"
-        android:text="Удалить"/>
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnDel"
+            android:text="Удалить"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnEdit"
+            android:text="Редактировать"/>
+    </LinearLayout>
+
 </LinearLayout>

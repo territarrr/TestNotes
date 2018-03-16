@@ -21,6 +21,8 @@
             android:label="@string/each_name" />
         <activity android:name=".AddNote"
             android:label="Добавление заметки"></activity>
+        <activity android:name=".EditNote" android:label="Редактирование заметки">
+        </activity>
     </application>
 
 </manifest>

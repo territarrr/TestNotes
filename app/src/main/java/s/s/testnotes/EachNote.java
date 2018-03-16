@@ -1,15 +1,21 @@
 package s.s.testnotes;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import static s.s.testnotes.Keys.BUTTON_CANCEL_TXT;
+import static s.s.testnotes.Keys.BUTTON_OK_TXT;
 import static s.s.testnotes.Keys.ID;
+import static s.s.testnotes.Keys.MENU_DEL;
 import static s.s.testnotes.Keys.TEXT;
 
 public class EachNote extends AppCompatActivity implements View.OnClickListener{
@@ -30,14 +36,48 @@ public class EachNote extends AppCompatActivity implements View.OnClickListener{
         Button btnDel = (Button) findViewById(R.id.btnDel);
         btnDel.setOnClickListener(this);
 
+        Button btnEdit = (Button) findViewById(R.id.btnEdit);
+        btnEdit.setOnClickListener(this);
+
         setResult(Activity.RESULT_CANCELED, intent);
 
     }
 
     @Override
     public void onClick(View v) {
-        intent.putExtra(ID, intent.getStringExtra(ID));
-        setResult(Activity.RESULT_OK, intent);
-        finish();
+        switch (v.getId())
+        {
+            case R.id.btnDel:
+                AlertDialog.Builder ad = new AlertDialog.Builder(this);
+                ad.setTitle(MENU_DEL);  // заголовок
+                ad.setPositiveButton(BUTTON_OK_TXT, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int arg1) {
+                        intent.putExtra(ID, intent.getStringExtra(ID));
+                        setResult(Activity.RESULT_OK, intent);
+                        finish();
+                    }
+                });
+                ad.setNegativeButton(BUTTON_CANCEL_TXT, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int arg1) {
+                    }
+                });
+                ad.show();
+                break;
+            case R.id.btnEdit:
+                intent.putExtra(ID, intent.getStringExtra(ID));
+                intent.putExtra(TEXT, intent.getStringExtra(TEXT));
+                setResult(Activity.RESULT_FIRST_USER, intent);
+                finish();
+                break;
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 3) {
+            if(resultCode == RESULT_OK) {
+                finish();
+            }
+        }
     }
 }

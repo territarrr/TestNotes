@@ -16,26 +16,28 @@ public class DB {
     private static DB sInstance = null;
     private Context mCtx;
 
-    private DB(Context ctx) { mCtx = ctx; }
+    private DB(Context ctx) {
+        mCtx = ctx;
+    }
 
     public static synchronized DB getInstance(Context ctx) {
         if (sInstance == null)
             sInstance = new DB(ctx);
         return sInstance;
     }
+
     private static final String DB_NAME = "mydb";
     private static final int DB_VERSION = 1;
     private static final String DB_TABLE = "mytab";
 
     public static final String COLUMN_ID = "_id";
-    public  static final String COLUMN_TXT = "txt";
+    public static final String COLUMN_TXT = "txt";
 
-    private static final String DB_CREATE = "create table " + DB_TABLE + "(" + COLUMN_ID +" integer primary key autoincrement, " +
+    private static final String DB_CREATE = "create table " + DB_TABLE + "(" + COLUMN_ID + " integer primary key autoincrement, " +
             COLUMN_TXT + " text);";
 
 
-
-    private  DBHelper mDBHelper;
+    private DBHelper mDBHelper;
     private SQLiteDatabase mDB;
 
     public void open() {
@@ -44,19 +46,19 @@ public class DB {
     }
 
     public void close() {
-        if(mDBHelper!=null) mDBHelper.close();
+        if (mDBHelper != null) mDBHelper.close();
     }
 
     public Cursor getAllData() {
-        return mDB.query(DB_TABLE,null,null,null,null,null,null);
+        return mDB.query(DB_TABLE, null, null, null, null, null, null);
     }
 
     public String getNote(int pos) {
-        String[] columns = new String[] {COLUMN_TXT};
+        String[] columns = new String[]{COLUMN_TXT};
         String selection = COLUMN_ID + " = ?";
-        String[] selectionArgs = new String[] { String.valueOf(pos) };
-        Cursor c = mDB.query(DB_TABLE,columns,selection,selectionArgs,null,null,null);
-        String text="";
+        String[] selectionArgs = new String[]{String.valueOf(pos)};
+        Cursor c = mDB.query(DB_TABLE, columns, selection, selectionArgs, null, null, null);
+        String text = "";
         if (c != null) {
             if (c.moveToFirst()) {
                 do {
@@ -72,16 +74,21 @@ public class DB {
         return text;
     }
 
-    public void  addRec(String txt) {
+    public void addRec(String txt) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_TXT, txt);
         mDB.insert(DB_TABLE, null, cv);
     }
 
     public void delRec(long id) {
-        mDB.delete(DB_TABLE, COLUMN_ID + " = " + id,null);
+        mDB.delete(DB_TABLE, COLUMN_ID + " = " + id, null);
     }
 
+    public void updRec(long id, String txt) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_TXT, txt);
+        mDB.update(DB_TABLE, cv, COLUMN_ID + " = " + id, null);
+    }
 
     private class DBHelper extends SQLiteOpenHelper {
 
@@ -93,7 +100,7 @@ public class DB {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DB_CREATE);
 
-            String[] startNotes = new String[] {"Теперь потаскайте список туда-сюда курсором " +
+            String[] startNotes = new String[]{"Теперь потаскайте список туда-сюда курсором " +
                     "(как будто пальцем) и смотрите логи. Там слишком много всего выводится. Я не буду здесь выкладывать. Но принцип " +
                     "понятен – меняется первый видимый пункт (firstVisibleItem) и может на единицу меняться кол-во видимых пунктов (visibleItemCount).",
                     "На следующем уроке:\n\n- строим список-дерево ExpandableListView",
@@ -107,7 +114,7 @@ public class DB {
                             "вы идете последовательно по урокам, то вполне можно прочесть и понять этот урок, а потом просто акутализируете свои " +
                             "знания в Уроке 136."};
             ContentValues cv = new ContentValues();
-            for(int i = 1; i < startNotes.length; i++) {
+            for (int i = 1; i < startNotes.length; i++) {
                 cv.put(COLUMN_TXT, startNotes[i]);
                 db.insert(DB_TABLE, null, cv);
             }
