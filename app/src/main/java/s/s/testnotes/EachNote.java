@@ -10,28 +10,31 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import static s.s.testnotes.Keys.BUTTON_CANCEL_TXT;
 import static s.s.testnotes.Keys.BUTTON_OK_TXT;
-import static s.s.testnotes.Keys.ID;
+
 import static s.s.testnotes.Keys.MENU_DEL;
-import static s.s.testnotes.Keys.TEXT;
+import static s.s.testnotes.Keys.NOTE;
+
 
 public class EachNote extends AppCompatActivity implements View.OnClickListener{
 
     TextView tvTextEachNote;
     Intent intent;
+    Note note;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_each_note);
 
         intent = getIntent();
-        String textNote = intent.getStringExtra(TEXT);
+
+        note = (Note) intent.getParcelableExtra(NOTE);;
 
         tvTextEachNote = (TextView) findViewById(R.id.tvTextEachNote);
-        tvTextEachNote.setText(textNote);
+        tvTextEachNote.setText(note.getText());
 
         Button btnDel = (Button) findViewById(R.id.btnDel);
         btnDel.setOnClickListener(this);
@@ -40,7 +43,6 @@ public class EachNote extends AppCompatActivity implements View.OnClickListener{
         btnEdit.setOnClickListener(this);
 
         setResult(Activity.RESULT_CANCELED, intent);
-
     }
 
     @Override
@@ -52,7 +54,7 @@ public class EachNote extends AppCompatActivity implements View.OnClickListener{
                 ad.setTitle(MENU_DEL);  // заголовок
                 ad.setPositiveButton(BUTTON_OK_TXT, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
-                        intent.putExtra(ID, intent.getStringExtra(ID));
+                        intent.putExtra(NOTE, note);
                         setResult(Activity.RESULT_OK, intent);
                         finish();
                     }
@@ -64,8 +66,7 @@ public class EachNote extends AppCompatActivity implements View.OnClickListener{
                 ad.show();
                 break;
             case R.id.btnEdit:
-                intent.putExtra(ID, intent.getStringExtra(ID));
-                intent.putExtra(TEXT, intent.getStringExtra(TEXT));
+                intent.putExtra(NOTE, note);
                 setResult(Activity.RESULT_FIRST_USER, intent);
                 finish();
                 break;

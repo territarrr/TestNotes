@@ -17,5 +17,6 @@ public interface Keys {
     public static final int CTX_MENU_DEL_ID = 1;
     public static final String BTN_EDIT = "Редактировать заметку";
     public static final String TV_TXT_EDIT = "Текст заметки";
+    public static final String NOTE = "Note";
 
 }

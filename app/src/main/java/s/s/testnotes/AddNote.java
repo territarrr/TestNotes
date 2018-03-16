@@ -8,11 +8,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import static s.s.testnotes.Keys.NOTE;
 import static s.s.testnotes.Keys.TEXT;
 
 public class AddNote extends AppCompatActivity implements View.OnClickListener{
 
     Button btnAdd;
+    Note note;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +30,8 @@ public class AddNote extends AppCompatActivity implements View.OnClickListener{
     public void onClick(View v) {
         EditText etNote = (EditText) findViewById(R.id.etEdit);
         Intent data = new Intent();
-        data.putExtra(TEXT, etNote.getText().toString());
+        note = new Note(0, etNote.getText().toString());
+        data.putExtra(NOTE, note);
         setResult(Activity.RESULT_OK, data);
         finish();
 

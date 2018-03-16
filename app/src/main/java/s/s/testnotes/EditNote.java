@@ -15,6 +15,7 @@ import static s.s.testnotes.Keys.BTN_EDIT;
 import static s.s.testnotes.Keys.BUTTON_CANCEL_TXT;
 import static s.s.testnotes.Keys.BUTTON_OK_TXT;
 import static s.s.testnotes.Keys.ID;
+import static s.s.testnotes.Keys.NOTE;
 import static s.s.testnotes.Keys.TEXT;
 import static s.s.testnotes.Keys.TV_TXT_EDIT;
 
@@ -26,6 +27,7 @@ public class EditNote extends AppCompatActivity implements View.OnClickListener{
     EditText etText;
     Intent intent;
     Button btn;
+    Note note;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class EditNote extends AppCompatActivity implements View.OnClickListener{
         setContentView(R.layout.activity_add_note);
 
         intent = getIntent();
+
+        note = intent.getParcelableExtra(NOTE);
 
         btn = (Button) findViewById(R.id.btnAdd);
         btn.setText(BTN_EDIT);
@@ -42,7 +46,7 @@ public class EditNote extends AppCompatActivity implements View.OnClickListener{
         tvText.setText(TV_TXT_EDIT);
 
         etText = findViewById(R.id.etEdit);
-        etText.setText(intent.getStringExtra(TEXT));
+        etText.setText(note.getText());
 
         setResult(Activity.RESULT_CANCELED, intent);
     }
@@ -54,8 +58,8 @@ public class EditNote extends AppCompatActivity implements View.OnClickListener{
         ad.setPositiveButton(BUTTON_OK_TXT, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                intent.putExtra(ID, intent.getStringExtra(ID));
-                intent.putExtra(TEXT, etText.getText().toString());
+                note.setText(etText.getText().toString());
+                intent.putExtra(NOTE, note);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }

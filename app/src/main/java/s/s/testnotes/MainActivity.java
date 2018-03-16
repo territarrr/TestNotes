@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import static android.os.Build.ID;
 import static s.s.testnotes.Keys.ADD_NOTE_SUCCSESS;
 import static s.s.testnotes.Keys.BUTTON_CANCEL_TXT;
 import static s.s.testnotes.Keys.BUTTON_OK_TXT;
@@ -28,7 +27,8 @@ import static s.s.testnotes.Keys.DEL_NOTE_SUCCSESS;
 import static s.s.testnotes.Keys.MENU_ADD;
 
 import static s.s.testnotes.Keys.MENU_DEL;
-import static s.s.testnotes.Keys.TEXT;
+import static s.s.testnotes.Keys.NOTE;
+
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         lvData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Note note = new Note(id,db.getNote((int) id));
                 Intent intent = new Intent(MainActivity.this, EachNote.class);
-                intent.putExtra(TEXT, db.getNote((int) id));
-                intent.putExtra(ID, String.valueOf(id));
+                intent.putExtra(NOTE,note);
                 startActivityForResult(intent, 2);
             }
         });
@@ -115,8 +115,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Note note = (Note) data.getParcelableExtra(NOTE);
         if(requestCode == 1) {
-            db.addRec(data.getStringExtra(TEXT));
+            db.addRec(note.getText());
             getSupportLoaderManager().restartLoader(0, null, this);
             Toast toast = Toast.makeText(getApplicationContext(),
                     ADD_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         else if (requestCode == 2)
         {
             if(resultCode == RESULT_OK) {
-                db.delRec(Long.valueOf(data.getStringExtra(ID)));
+                db.delRec(Long.valueOf(note.getId()));
                 getSupportLoaderManager().restartLoader(0, null, MainActivity.this);
                 Toast toast = Toast.makeText(getApplicationContext(),
                         DEL_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
@@ -133,15 +134,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
             else if (resultCode == RESULT_FIRST_USER) {
                 Intent intent = new Intent(this, EditNote.class);
-                intent.putExtra(ID, data.getStringExtra(ID));
-                intent.putExtra(TEXT, data.getStringExtra(TEXT));
+                intent.putExtra(NOTE, note);
                 startActivityForResult(intent, 3);
-
             }
         } else if (requestCode == 3) {
             if(resultCode == RESULT_OK)
             {
-                db.updRec(Long.valueOf(data.getStringExtra(ID)), data.getStringExtra(TEXT));
+                db.updRec(note.getId(), note.getText());
                 getSupportLoaderManager().restartLoader(0,null, MainActivity.this);
             }
         }
