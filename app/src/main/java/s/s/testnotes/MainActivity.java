@@ -1,6 +1,5 @@
 package s.s.testnotes;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,18 +21,20 @@ import android.widget.Toast;
 import static s.s.testnotes.Keys.ADD_NOTE_SUCCSESS;
 import static s.s.testnotes.Keys.BUTTON_CANCEL_TXT;
 import static s.s.testnotes.Keys.BUTTON_OK_TXT;
-import static s.s.testnotes.Keys.CTX_MENU_DEL;
+
 import static s.s.testnotes.Keys.CTX_MENU_DEL_ID;
 import static s.s.testnotes.Keys.DEL_NOTE_SUCCSESS;
-import static s.s.testnotes.Keys.MENU_ADD;
+import static s.s.testnotes.Keys.INT_NULL;
+
 
 import static s.s.testnotes.Keys.MENU_DEL;
 import static s.s.testnotes.Keys.NOTE;
+import static s.s.testnotes.Keys.REQUEST_CODE_ADD;
+import static s.s.testnotes.Keys.REQUEST_CODE_DEL;
+import static s.s.testnotes.Keys.REQUEST_CODE_EDT;
 
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final int CM_DELETE_ID = 1;
 
     private ListView lvData;
     private DB db;
@@ -46,23 +48,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         db = DB.getInstance(this);
         db.open();
 
-        String[] from = new String[] { DB.COLUMN_TXT };
-        int[] to = new int[] {R.id.tvText };
+        String[] from = new String[]{DB.COLUMN_TXT};
+        int[] to = new int[]{R.id.tvText};
 
-        scAdapter = new SimpleCursorAdapter(this, R.layout.item, null, from, to, 0);
+        scAdapter = new SimpleCursorAdapter(this, R.layout.item, null, from, to, INT_NULL);
         lvData = (ListView) findViewById(R.id.lvData);
         lvData.setAdapter(scAdapter);
 
         registerForContextMenu(lvData);
-        getSupportLoaderManager().initLoader(0, null,this);
+        getSupportLoaderManager().initLoader(INT_NULL, null, this);
 
         lvData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Note note = new Note(id,db.getNote((int) id));
+                Note note = new Note(id, db.getNote((int) id));
                 Intent intent = new Intent(MainActivity.this, EachNote.class);
-                intent.putExtra(NOTE,note);
-                startActivityForResult(intent, 2);
+                intent.putExtra(NOTE, note);
+                startActivityForResult(intent, REQUEST_CODE_DEL);
             }
         });
 
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(0, CTX_MENU_DEL_ID, 0, CTX_MENU_DEL);
+        menu.add(INT_NULL, CTX_MENU_DEL_ID, INT_NULL, getString(R.string.del_btn));
     }
 
     @Override
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         db.delRec(info.id);
 
                         Toast toast = Toast.makeText(MainActivity.this, DEL_NOTE_SUCCSESS, Toast.LENGTH_LONG);
-                        getSupportLoaderManager().restartLoader(0, null, MainActivity.this);
+                        getSupportLoaderManager().restartLoader(INT_NULL, null, MainActivity.this);
                     }
                 });
                 ad.setNegativeButton(BUTTON_CANCEL_TXT, new DialogInterface.OnClickListener() {
@@ -101,49 +103,59 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 0, MENU_ADD);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent(this, AddNote.class);
-        startActivityForResult(intent, 1);
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Intent intent = new Intent(this, AddNoteActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_ADD);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        getSupportLoaderManager().restartLoader(INT_NULL, null, MainActivity.this);
+
         Note note = (Note) data.getParcelableExtra(NOTE);
-        if(requestCode == 1) {
-            db.addRec(note.getText());
-            getSupportLoaderManager().restartLoader(0, null, this);
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    ADD_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
-            toast.show();
+
+        switch (requestCode) {
+            case REQUEST_CODE_ADD:
+                if (resultCode == RESULT_OK) {
+                    db.addRec(note.getText());
+                    getSupportLoaderManager().restartLoader(INT_NULL, null, this);
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            ADD_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                break;
+            case REQUEST_CODE_DEL:
+                if (resultCode == RESULT_OK) {
+                    db.delRec(Long.valueOf(note.getId()));
+                    getSupportLoaderManager().restartLoader(INT_NULL, null, MainActivity.this);
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            DEL_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                break;
+            case REQUEST_CODE_EDT:
+                if (resultCode == RESULT_OK) {
+                    db.updRec(note.getId(), note.getText());
+                }
+                break;
+            default:
+                break;
         }
-        else if (requestCode == 2)
-        {
-            if(resultCode == RESULT_OK) {
-                db.delRec(Long.valueOf(note.getId()));
-                getSupportLoaderManager().restartLoader(0, null, MainActivity.this);
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        DEL_NOTE_SUCCSESS, Toast.LENGTH_SHORT);
-                toast.show();
-            }
-            else if (resultCode == RESULT_FIRST_USER) {
-                Intent intent = new Intent(this, EditNote.class);
-                intent.putExtra(NOTE, note);
-                startActivityForResult(intent, 3);
-            }
-        } else if (requestCode == 3) {
-            if(resultCode == RESULT_OK)
-            {
-                db.updRec(note.getId(), note.getText());
-                getSupportLoaderManager().restartLoader(0,null, MainActivity.this);
-            }
-        }
+
     }
 
     protected void onDestroy() {

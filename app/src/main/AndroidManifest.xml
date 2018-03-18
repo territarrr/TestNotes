@@ -19,9 +19,9 @@
         <activity
             android:name=".EachNote"
             android:label="@string/each_name" />
-        <activity android:name=".AddNote"
-            android:label="Добавление заметки"></activity>
-        <activity android:name=".EditNote" android:label="Редактирование заметки">
+        <activity android:name=".AddNoteActivity"
+            android:label=""></activity>
+        <activity android:name=".EditNote" android:label="">
         </activity>
     </application>
 
